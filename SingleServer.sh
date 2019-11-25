@@ -1,4 +1,11 @@
+# Inspired by https://github.com/diagonalciso/Wazuh-3.10-installer
+#
+#
+
+###############################
 # Install Wazuh repo
+###############################
+
 echo Install Wazuh repo\n
 
 apt update && apt upgrade -y && apt autoremove -y
@@ -8,21 +15,30 @@ curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
 echo "deb https://packages.wazuh.com/3.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
 apt update
 
+###############################
 # Install Wazuh manager
+###############################
 echo Wazuh manager
 apt install wazuh-manager
 
+
+###############################
 # Install wazuh api
+###############################
 echo Wazuh api
 curl -sL https://deb.nodesource.com/setup_8.x | bash -
 apt install nodejs -y
 apt install wazuh-api -y
 
+###############################
 # Prevent accidental updates
+###############################
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/wazuh.list
 apt update
 
+###############################
 # Install Filebeat
+###############################
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
@@ -40,7 +56,9 @@ beat.service
 curl https://raw.githubusercontent.com/wazuh/wazuh/v3.10.2/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
 systemctl restart filebeat.service
 
+###############################
 # Install Elastic Stack
+###############################
 echo Elastic Stack
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
@@ -63,7 +81,9 @@ sleep 300
 # curl: (7) Failed to connect to localhost port 9200: Connection refused
 # filebeat setup --index-management -E setup.template.json.enabled=false
 
+###############################
 # Install Kibana
+###############################
 apt install kibana=7.4.0
 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.0.zip
 cp /etc/kibana/kibana.yml /tmp/
@@ -81,7 +101,9 @@ sleep 10
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/elastic-7.x.list
 apt update
 
+######################################
 # Protect Kibana with a reverse proxy
+######################################
 apt install nginx -y
 mkdir -p /etc/ssl/certs /etc/ssl/private
 cp <ssl_pem> /etc/ssl/certs/kibana-access.pem

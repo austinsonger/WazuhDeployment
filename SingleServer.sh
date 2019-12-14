@@ -75,8 +75,8 @@ systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
 # Wait for Elastic to start, my server is realy slow, so I'll wait 5 minutes
-echo sleeping for 5 minutes
-sleep 300
+echo Restarting ElasticSearch
+sleep 60
 # notes: curl "http://localhost:9200/?pretty"
 # curl: (7) Failed to connect to localhost port 9200: Connection refused
 # filebeat setup --index-management -E setup.template.json.enabled=false
@@ -96,7 +96,7 @@ sed -i "s/localhost:9200/$my_ip/" /etc/kibana/kibana.yml
 systemctl daemon-reload
 systemctl enable kibana.service
 systemctl start kibana.service
-echo sleeping for 10 seconds
+echo Restarting Kibana
 sleep 10
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/elastic-7.x.list
 apt update

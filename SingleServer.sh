@@ -75,7 +75,7 @@ systemctl start elasticsearch.service
 
 # Wait for Elastic to start, my server is realy slow, so I'll wait 5 minutes
 echo Restarting ElasticSearch
-sleep 60
+sleep 240
 # notes: curl "http://localhost:9200/?pretty"
 # curl: (7) Failed to connect to localhost port 9200: Connection refused
 # filebeat setup --index-management -E setup.template.json.enabled=false

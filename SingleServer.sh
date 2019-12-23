@@ -3,13 +3,23 @@
 # OS: Debian-based Systems
 ###########################
 
+echo "--------------------------------------------------------------------------"
+echo "$(date)"
+echo "Starting Wazuh Made Easy"
+echo "Wazuh for Debian-based Systems"
+echo "Wazuh Manager - Wazuh API - Elasticsearch - Kibana"
+echo "-------------------------------------------------------------------------"
+
+echo -e "Wazuh Made Easy Status"
+
+echo " System Update..."
+
+apt update && apt upgrade -y && apt autoremove -y
+
 ###############################
 # Install Wazuh repo
 ###############################
-
-echo Install Wazuh repo\n
-
-apt update && apt upgrade -y && apt autoremove -y
+sudo -n true
 apt install curl apt-transport-https lsb-release gnupg2 dirmngr sudo expect net-tools -y
 if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
 curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
@@ -40,6 +50,7 @@ apt update
 ###############################
 # Install Filebeat
 ###############################
+echo "---- Installing Filebeat ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
@@ -59,7 +70,7 @@ systemctl restart filebeat.service
 ###############################
 # Install Elastic Stack
 ###############################
-echo Elastic Stack
+echo "---- Installing the Elasticsearch Debian Package ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
@@ -74,9 +85,8 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
-# Wait for Elastic to start, my server is realy slow, so I'll wait 5 minutes
-echo Restarting ElasticSearch
-sleep 240
+echo RESTARTING Elasticsearch.......
+sleep 200
 # notes: curl "http://localhost:9200/?pretty"
 # curl: (7) Failed to connect to localhost port 9200: Connection refused
 # filebeat setup --index-management -E setup.template.json.enabled=false
@@ -84,6 +94,7 @@ sleep 240
 ###############################
 # Install Kibana
 ###############################
+echo "---- Installing the Kibana Debian Package ----"
 apt install kibana=7.4.2
 sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.2.zip
 cp /etc/kibana/kibana.yml /tmp/

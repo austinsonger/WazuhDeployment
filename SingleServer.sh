@@ -1,6 +1,7 @@
-# Inspired by https://github.com/diagonalciso/Wazuh-3.10-installer
+#!/bin/bash
 #
-#
+# OS: Debian-based Systems
+###########################
 
 ###############################
 # Install Wazuh repo

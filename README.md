@@ -1,9 +1,12 @@
 # WazuhDeployment
 
+## Current Requirements
+
 OS: Debian-based systems
 
 
-To-do:
-- []Redhat-based system
-- []Finish Distributed Setup
+## To-do:
+
+- Redhat-based system
+- Finish Distributed Setup
 

@@ -1,6 +1,11 @@
-###############################
+#!/bin/bash
+#
 # Author: Austin Songer
 #
+# OS: Debian-based Systems
+############################
+
+###############################
 # Wazuh Manager
 # Filebeat
 # Wazuh API

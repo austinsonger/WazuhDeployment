@@ -59,3 +59,12 @@ systemctl start file
 beat.service
 curl https://raw.githubusercontent.com/wazuh/wazuh/v3.10.2/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
 systemctl restart filebeat.service
+
+###############################
+# Wazuh API Authorization
+###############################
+cd /var/ossec/api/configuration/auth
+echo -e "You need to set a username and password for the Wazuh API."
+read -p "Please enter a username : " apiuser
+node htpasswd -c user $apiuser
+systemctl restart wazuh-api

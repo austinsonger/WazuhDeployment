@@ -9,16 +9,15 @@ apt remove --purge filebeat
 apt remove --purge elasticsearch
 apt remove --purge kibana
 apt autoremove
+cd
 cd ../../
-cd var
-cd lib
+cd /var/lib
 rm -R -f elasticsearch
 cd ../../
 cd etc
 rm -R -f elasticsearch
 cd ../
-cd var
-cd lib
+cd /var/lib
 rm -R -f kibana
 cd ../../
 cd etc

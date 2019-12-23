@@ -63,6 +63,8 @@ systemctl restart filebeat.service
 ###############################
 # Wazuh API Authorization
 ###############################
+apt install apache2-utils -y
+clear
 cd /var/ossec/api/configuration/auth
 echo -e "You need to set a username and password for the Wazuh API."
 read -p "Please enter a username : " apiuser

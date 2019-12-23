@@ -1,7 +1,12 @@
-###############################
+#!/bin/bash
+#
+# OS: Debian-based Systems
+############################
+
+###########################
 # Wazuh Deployment CleanUp
 # (Run Script with Sudo)
-###############################
+###########################
 
 apt remove --purge wazuh-manager
 apt remove --purge nodejs

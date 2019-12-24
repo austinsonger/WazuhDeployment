@@ -5,6 +5,11 @@
 # OS: Debian-based Systems
 ############################
 
+
+apt install curl apt-transport-https lsb-release gnupg2 dirmngr sudo expect net-tools -y
+if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
+
+
 ############################
 # ElasticSearch
 # Kibana
@@ -14,11 +19,11 @@
 ###############################
 # Install Elastic Stack
 ###############################
-echo Elastic Stack
+echo "---- Installing the Elasticsearch Debian Package ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install elasticsearch=7.4.0 -y
+apt install elasticsearch=7.4.2
 cp /etc/elasticsearch/elasticsearch.yml /tmp/
 my_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 sed -i "s/^#network.host: 192.168.0.1/network.host: $my_ip/" /etc/elasticsearch/elasticsearch.yml
@@ -29,9 +34,8 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
-# Wait for Elastic to start, my server is realy slow, so I'll wait 5 minutes
-echo sleeping for 5 minutes
-sleep 300
+echo RESTARTING Elasticsearch.......
+sleep 200
 # notes: curl "http://localhost:9200/?pretty"
 # curl: (7) Failed to connect to localhost port 9200: Connection refused
 # filebeat setup --index-management -E setup.template.json.enabled=false
@@ -39,8 +43,9 @@ sleep 300
 ###############################
 # Install Kibana
 ###############################
-apt install kibana=7.4.0 -y
-sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.0.zip
+echo "---- Installing the Kibana Debian Package ----"
+apt install kibana=7.4.2
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.2.zip
 cp /etc/kibana/kibana.yml /tmp/
 my_ip=\""$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')\""
 sed -i "s/^#server\.host: \"localhost\"/server\.host: $my_ip/" /etc/kibana/kibana.yml
@@ -51,11 +56,14 @@ sed -i "s/localhost:9200/$my_ip/" /etc/kibana/kibana.yml
 systemctl daemon-reload
 systemctl enable kibana.service
 systemctl start kibana.service
-echo sleeping for 10 seconds
+echo Restarting Kibana
 sleep 10
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/elastic-7.x.list
 apt update
 
+######################################
+# Protect Kibana with a reverse proxy
+######################################
 ######################################
 # Protect Kibana with a reverse proxy
 ######################################
@@ -71,7 +79,6 @@ server {
     listen [::]:80;
     return 301 https://$host$request_uri;
 }
-
 server {
     listen 443 default_server;
     listen            [::]:443;

@@ -54,9 +54,9 @@ echo "---- Installing Filebeat ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install filebeat=7.4.2
-curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.10.2/extensions/filebeat/7.x/filebeat.yml
-curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.10.2/extensions/elasticsearch/7.x/wazuh-template.json
+apt install filebeat=7.5.1
+curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/filebeat/7.x/filebeat.yml
+curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/elasticsearch/7.x/wazuh-template.json
 curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | sudo tar -xvz -C /usr/share/filebeat/module
 cp /etc/filebeat/filebeat.yml /tmp/
 my_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):9200"
@@ -64,7 +64,7 @@ sed -i "s/YOUR_ELASTIC_SERVER_IP:9200/$my_ip/" /etc/filebeat/filebeat.yml
 systemctl daemon-reload
 systemctl enable filebeat.service
 systemctl start filebeat.service
-curl https://raw.githubusercontent.com/wazuh/wazuh/v3.10.2/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
+curl https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
 systemctl restart filebeat.service
 
 ###############################
@@ -74,7 +74,7 @@ echo "---- Installing the Elasticsearch Debian Package ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install elasticsearch=7.4.2
+apt install elasticsearch=7.5.1
 cp /etc/elasticsearch/elasticsearch.yml /tmp/
 my_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 sed -i "s/^#network.host: 192.168.0.1/network.host: $my_ip/" /etc/elasticsearch/elasticsearch.yml
@@ -95,8 +95,8 @@ sleep 200
 # Install Kibana
 ###############################
 echo "---- Installing the Kibana Debian Package ----"
-apt install kibana=7.4.2
-sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.2.zip
+apt install kibana=7.5.1
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.0_7.5.1.zip
 cp /etc/kibana/kibana.yml /tmp/
 my_ip=\""$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')\""
 sed -i "s/^#server\.host: \"localhost\"/server\.host: $my_ip/" /etc/kibana/kibana.yml
@@ -149,12 +149,12 @@ sed -i "s/localhost:5601/$my_ip/" /etc/nginx/sites-available/default
 
 apt install apache2-utils -y
 clear
-echo -e "You need to set a username and password to login."
+echo "You need to set a username and password to login."
 read -p "Please enter a username : " user
 htpasswd -c /etc/nginx/conf.d/kibana.htpasswd $user
 systemctl restart nginx
 cd /var/ossec/api/configuration/auth
-echo -e "You need to set a username and password for the Wazuh API."
+echo "You need to set a username and password for the Wazuh API."
 read -p "Please enter a username : " apiuser
 node htpasswd -c user $apiuser
 systemctl restart wazuh-api

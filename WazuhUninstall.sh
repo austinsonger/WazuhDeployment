@@ -17,14 +17,14 @@ apt autoremove
 cd
 cd ../../
 cd /var/lib
-rm -R -f elasticsearch
+sudo rm -R -f elasticsearch
 cd ../../
 cd etc
-rm -R -f elasticsearch
+sudo rm -R -f elasticsearch
 cd ../
 cd /var/lib
-rm -R -f kibana
+sudo rm -R -f kibana
 cd ../../
 cd etc
-rm -R -f kibana
+sudo rm -R -f kibana
 cd

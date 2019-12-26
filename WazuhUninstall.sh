@@ -27,4 +27,10 @@ sudo rm -R -f kibana
 cd ../../
 cd etc
 sudo rm -R -f kibana
+cd ../../
+cd /var/lib
+sudo rm -R -f filebeat
+cd ../../
+cd etc
+sudo rm -R -f filebeat
 cd

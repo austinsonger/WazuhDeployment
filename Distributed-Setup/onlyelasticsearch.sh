@@ -27,9 +27,17 @@ if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
 ###############################
 echo "---- Installing the Elasticsearch Debian Package ----"
 sleep 5
-curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
-sudo apt install elasticsearch=7.5.1
+
+# Source List Install
+#curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
+#echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
+#sudo apt install elasticsearch=7.5.1
+
+# Direct Install
+sudo wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.5.1-amd64.deb
+sudo dpkg -i elasticsearch-7.5.1-amd64.deb
+sudo rm elasticsearch*
+
 sudo cp /etc/elasticsearch/elasticsearch.yml /tmp/
 my_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 sudo sed -i "s/^#network.host: 192.168.0.1/network.host: $my_ip/" /etc/elasticsearch/elasticsearch.yml

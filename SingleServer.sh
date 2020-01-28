@@ -10,7 +10,7 @@ echo "Wazuh for Debian-based Systems"
 echo "Wazuh Manager - Wazuh API - Elasticsearch - Kibana"
 echo "-------------------------------------------------------------------------"
 
-echo -e "Wazuh Made Easy Status"
+echo "Wazuh Made Easy Status"
 
 echo " System Update..."
 

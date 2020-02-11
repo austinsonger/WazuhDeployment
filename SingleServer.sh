@@ -37,7 +37,7 @@ apt install wazuh-manager
 # Install wazuh api
 ###############################
 echo Wazuh api
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
+curl -sL https://deb.nodesource.com/setup_10.x | bash -
 apt install nodejs
 apt install wazuh-api
 

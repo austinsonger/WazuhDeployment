@@ -20,7 +20,7 @@ sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 # Install Wazuh repo
 ###############################
 sudo -n true
-apt install curl apt-transport-https lsb-release gnupg2 dirmngr sudo expect net-tools -y
+sudo apt install curl apt-transport-https lsb-release gnupg2 dirmngr sudo expect net-tools -y
 if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
 curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
 echo "deb https://packages.wazuh.com/3.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list

@@ -14,7 +14,7 @@ echo "Wazuh Made Easy Status"
 
 echo " System Update..."
 
-apt update && apt upgrade -y && apt autoremove -y
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 
 ###############################
 # Install Wazuh repo
@@ -24,7 +24,7 @@ apt install curl apt-transport-https lsb-release gnupg2 dirmngr sudo expect net-
 if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
 curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
 echo "deb https://packages.wazuh.com/3.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
-apt update
+apt update -y
 
 ###############################
 # Install Wazuh manager
@@ -38,14 +38,14 @@ apt install wazuh-manager
 ###############################
 echo Wazuh api
 curl -sL https://deb.nodesource.com/setup_10.x | bash -
-apt install nodejs
-apt install wazuh-api
+sudo apt install nodejs
+sudo apt install wazuh-api
 
 ###############################
 # Prevent accidental updates
 ###############################
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/wazuh.list
-apt update
+sudo apt update
 
 ###############################
 # Install Filebeat
@@ -53,8 +53,8 @@ apt update
 echo "---- Installing Filebeat ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
-apt update
-apt install filebeat=7.5.2
+sudo apt update
+sudo apt install filebeat=7.5.2 -y
 curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/filebeat/7.x/filebeat.yml
 curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/elasticsearch/7.x/wazuh-template.json
 curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | sudo tar -xvz -C /usr/share/filebeat/module
@@ -73,8 +73,8 @@ systemctl restart filebeat.service
 echo "---- Installing the Elasticsearch Debian Package ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
-apt update
-apt install elasticsearch=7.5.2
+sudo apt update -y
+sudo apt install elasticsearch=7.5.2 -y
 cp /etc/elasticsearch/elasticsearch.yml /tmp/
 my_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 sed -i "s/^#network.host: 192.168.0.1/network.host: $my_ip/" /etc/elasticsearch/elasticsearch.yml
@@ -110,12 +110,12 @@ systemctl start kibana.service
 echo Restarting Kibana
 sleep 10
 sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/elastic-7.x.list
-apt update
+sudo apt update-y
 
 ######################################
 # Protect Kibana with a reverse proxy
 ######################################
-apt install nginx -y
+sudo apt install nginx -y
 mkdir -p /etc/ssl/certs /etc/ssl/private
 cp <ssl_pem> /etc/ssl/certs/kibana-access.pem
 cp <ssl_key> /etc/ssl/private/kibana-access.key
@@ -147,7 +147,7 @@ cp /etc/nginx/sites-available/default /tmp/
 my_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):5601"
 sed -i "s/localhost:5601/$my_ip/" /etc/nginx/sites-available/default
 
-apt install apache2-utils -y
+sudo apt install apache2-utils -y
 clear
 echo "You need to set a username and password to login."
 read -p "Please enter a username : " user

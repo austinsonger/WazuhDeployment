@@ -54,7 +54,7 @@ echo "---- Installing Filebeat ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install filebeat=7.5.1
+apt install filebeat=7.5.2
 curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/filebeat/7.x/filebeat.yml
 curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/elasticsearch/7.x/wazuh-template.json
 curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | sudo tar -xvz -C /usr/share/filebeat/module
@@ -74,7 +74,7 @@ echo "---- Installing the Elasticsearch Debian Package ----"
 curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
-apt install elasticsearch=7.5.1
+apt install elasticsearch=7.5.2
 cp /etc/elasticsearch/elasticsearch.yml /tmp/
 my_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 sed -i "s/^#network.host: 192.168.0.1/network.host: $my_ip/" /etc/elasticsearch/elasticsearch.yml
@@ -95,8 +95,8 @@ sleep 200
 # Install Kibana
 ###############################
 echo "---- Installing the Kibana Debian Package ----"
-apt install kibana=7.5.1
-sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.0_7.5.1.zip
+apt install kibana=7.5.2
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.0_7.5.2.zip
 cp /etc/kibana/kibana.yml /tmp/
 my_ip=\""$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')\""
 sed -i "s/^#server\.host: \"localhost\"/server\.host: $my_ip/" /etc/kibana/kibana.yml

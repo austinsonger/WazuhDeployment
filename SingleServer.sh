@@ -55,8 +55,8 @@ curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-7.x.list
 apt update
 apt install filebeat=7.5.2
-curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/filebeat/7.x/filebeat.yml
-curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/elasticsearch/7.x/wazuh-template.json
+curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/filebeat/7.x/filebeat.yml
+curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/elasticsearch/7.x/wazuh-template.json
 curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | sudo tar -xvz -C /usr/share/filebeat/module
 cp /etc/filebeat/filebeat.yml /tmp/
 my_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):9200"
@@ -64,7 +64,7 @@ sed -i "s/YOUR_ELASTIC_SERVER_IP:9200/$my_ip/" /etc/filebeat/filebeat.yml
 systemctl daemon-reload
 systemctl enable filebeat.service
 systemctl start filebeat.service
-curl https://raw.githubusercontent.com/wazuh/wazuh/v3.11.0/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
+curl https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
 systemctl restart filebeat.service
 
 ###############################
@@ -96,7 +96,7 @@ sleep 200
 ###############################
 echo "---- Installing the Kibana Debian Package ----"
 apt install kibana=7.5.2
-sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.0_7.5.2.zip
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.3_7.5.2.zip
 cp /etc/kibana/kibana.yml /tmp/
 my_ip=\""$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')\""
 sed -i "s/^#server\.host: \"localhost\"/server\.host: $my_ip/" /etc/kibana/kibana.yml

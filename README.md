@@ -7,9 +7,10 @@ OS: Debian-based systems
 
 ## To-do:
 
-- Redhat-based system
-- Finish Distributed Setup  
-  - Add prompts related to IP Addresses
+- [X] Redhat-based system (Not Tested)
+
+- [] Finish Distributed Setup  
+  - [] Add prompts related to IP Addresses
   
   
 

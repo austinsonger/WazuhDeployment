@@ -9,8 +9,8 @@ OS: Debian-based systems
 
 - [X] Redhat-based system (Not Tested)
 
-- [] Finish Distributed Setup  
-  - [] Add prompts related to IP Addresses
+- [ ] Finish Distributed Setup  
+  - [ ] Add prompts related to IP Addresses
   
   
 

@@ -33,7 +33,7 @@ autorefresh=1
 type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo
 
 yum update -y
-yum -y install elasticsearch-7.4.0 kibana-7.4.0 logstash-7.4.0
+yum -y install elasticsearch-7.6.1 kibana-7.6.1 logstash-7.6.1
 chkconfig --add kibana
 chkconfig --add logstash
 chkconfig --add elasticsearch
@@ -81,7 +81,7 @@ EOF
 yum update
 yum -y install wazuh-manager
 service wazuh-manager status
-curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 yum install -y nodejs
 python --version
 netstat -tapn | grep LISTEN
@@ -94,7 +94,7 @@ chown logstash:logstash /etc/logstash/conf.d/01-wazuh.conf
 usermod -a -G ossec logstash
 systemctl daemon-reload
 export NODE_OPTIONS="--max-old-space-size=3072"
-/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.0.zip
+/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.12.0_7.6.1.zip
 sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/elasticsearch.repo
 node /var/ossec/api/configuration/auth/htpasswd -c /var/ossec/api/configuration/auth/user manager
 service wazuh-api restart

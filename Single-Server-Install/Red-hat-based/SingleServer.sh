@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# OS: Debian-based Systems
+# OS: Redhat-based Systems
 ###########################
 
 echo "--------------------------------------------------------------------------"
@@ -16,157 +16,92 @@ echo " System Update..."
 
 sudo yum update && sudo yum upgrade -y && sudo yum autoremove -y
 
-###############################
-# Install Wazuh repo
-###############################
-sudo -n true
-sudo yum install curl yum-transport-https lsb-release gnupg2 dirmngr sudo expect net-tools -y
-if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi
-curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | yum-key add -
-echo "deb https://packages.wazuh.com/3.x/yum/ stable main" | tee -a /etc/yum/sources.list.d/wazuh.list
+wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jdk-8u172-linux-x64.rpm"
+wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-linux-x64.rpm"
+https://download.oracle.com/otn/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jdk-8u202-linux-x64.rpm
+https://download.oracle.com/otn/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jre-8u202-linux-x64.rpm
+rpm -ivh jdk-8u172-linux-x64.rpm
+rpm -ivh jre-8u172-linux-x64.rpm
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+echo "[logstash-7.x]
+name=Elastic repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo
+
 yum update -y
+yum -y install elasticsearch-7.4.0 kibana-7.4.0 logstash-7.4.0
+chkconfig --add kibana
+chkconfig --add logstash
+chkconfig --add elasticsearch
+chkconfig logstash on
+chkconfig elasticsearch on
+chkconfig kibana on
+/usr/share/logstash/bin/logstash-plugin install logstash-output-email
+echo "cluster.name: elk01
+node.name: elk01-nodo01
+bootstrap.memory_lock: true
+network.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
+sed -i 's/-Xms1g/-Xms32g/g' /etc/elasticsearch/jvm.options
+sed -i 's/-Xmx1g/-Xmx32g/g' /etc/elasticsearch/jvm.options
 
-###############################
-# Install Wazuh manager
-###############################
-echo Wazuh manager
-yum install wazuh-manager
+echo "ES_HOME=/usr/share/elasticsearch
+CONF_DIR=/etc/elasticsearch
+DATA_DIR=/var/lib/elasticsearch
+LOG_DIR=/var/log/elasticsearch
+PID_DIR=/var/run/elasticsearch
+ES_USER=elasticsearch
+ES_GROUP=elasticsearch
+ES_STARTUP_SLEEP_TIME=5
+MAX_OPEN_FILES=9965536" >> /etc/sysconfig/elasticsearch
 
+echo 'server.port: 5601
+server.host: "localhost"
+server.name: "ELK01"
+elasticsearch.url: "http://localhost:9200"
+elasticsearch.preserveHost: true
+kibana.index: ".kibana"
+kibana.defaultAppId: "discover"' >> /etc/kibana/kibana.yml
+service elasticsearch start
+service kibana start
 
-###############################
-# Install wazuh api
-###############################
-echo Wazuh api
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
-sudo yum install nodejs
-sudo yum install wazuh-api
-
-
-###############################
-# Prevent accidental updates
-###############################
-sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/wazuh.repo
-sudo yum update
-
-
-###############################
-# Install Filebeat
-###############################
-echo "---- Installing Filebeat ----"
-curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | yum-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/yum stable main" | tee /etc/yum/sources.list.d/elastic-7.x.list
-sudo yum update
-sudo yum install filebeat=7.5.2 -y
-curl -so /etc/filebeat/filebeat.yml https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/filebeat/7.x/filebeat.yml
-curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/elasticsearch/7.x/wazuh-template.json
-curl -s https://packages.wazuh.com/3.x/filebeat/wazuh-filebeat-0.1.tar.gz | sudo tar -xvz -C /usr/share/filebeat/module
-cp /etc/filebeat/filebeat.yml /tmp/
-wazuh_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):9200"
-sed -i "s/YOUR_ELASTIC_SERVER_IP:9200/$wazuh_ip/" /etc/filebeat/filebeat.yml
-systemctl daemon-reload
-systemctl enable filebeat.service
-systemctl start filebeat.service
-curl https://raw.githubusercontent.com/wazuh/wazuh/v3.11.3/extensions/elasticsearch/7.x/wazuh-template.json | curl -X PUT "http://192.168.0.68:9200/_template/wazuh" -H 'Content-Type: application/json' -d @-
-systemctl restart filebeat.service
-
-
-
-###############################
-# Install Elastic Stack
-###############################
-echo "---- Installing the Elasticsearch Debian Package ----"
-curl -s https://artifacts.elastic.co/GPG-KEY-elasticsearch | yum-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/yum stable main" | tee /etc/yum/sources.list.d/elastic-7.x.list
-sudo yum update -y
-sudo yum install elasticsearch=7.5.2 -y
-cp /etc/elasticsearch/elasticsearch.yml /tmp/
-wazuh_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
-sed -i "s/^#network.host: 192.168.0.1/network.host: $wazuh_ip/" /etc/elasticsearch/elasticsearch.yml
-# echo -e "\n \nFurther configuration will be necessary after changing the network.host option. \nUncomment the following lines in the file /etc/elasticsearch/elasticsearch.yml:\n \n# node.name: <node-1> \n# cluster.initial_master_nodes: \n"
-sed -i 's/^#node\.name: node\-1/node\.name: node\-1/'i /etc/elasticsearch/elasticsearch.yml
-sed -i 's/^#cluster\.initial_master_nodes: \["node-1", "node-2"]/cluster.initial_master_nodes: ["node-1"]'/i /etc/elasticsearch/elasticsearch.yml
-systemctl daemon-reload
-systemctl enable elasticsearch.service
-systemctl start elasticsearch.service
-
-echo RESTARTING Elasticsearch.......
-sleep 200
-# notes: curl "http://localhost:9200/?pretty"
-# curl: (7) Failed to connect to localhost port 9200: Connection refused
-# filebeat setup --index-management -E setup.template.json.enabled=false
-
-
-
-###############################
-# Install Kibana
-###############################
-echo "---- Installing the Kibana Debian Package ----"
-yum install kibana=7.5.2
-sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.11.3_7.5.2.zip
-cp /etc/kibana/kibana.yml /tmp/
-wazuh_ip=\""$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')\""
-sed -i "s/^#server\.host: \"localhost\"/server\.host: $wazuh_ip/" /etc/kibana/kibana.yml
-echo -e "Configure the URLs of the Elasticsearch instances to use for all your queries by editing the file /etc/kibana/kibana.yml: \nUncomment server.host and change the ip. \nAlso set elasticsearch.hosts: [http://<elasticsearch.hosts:9200] to the correct ip \nExit nano by pressing F2 then Y"
-wazuh_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):9200"
-sed -i "s/^#elasticsearch\.hosts/elasticsearch.hosts/" /etc/kibana/kibana.yml
-sed -i "s/localhost:9200/$wazuh_ip/" /etc/kibana/kibana.yml
-systemctl daemon-reload
-systemctl enable kibana.service
-systemctl start kibana.service
-echo Restarting Kibana
-sleep 10
-sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/wazuh.repo
-sudo yum update -y
-
-
-
-######################################
-# Protect Kibana with a reverse proxy
-######################################
-sudo yum install nginx -y
-mkdir -p /etc/ssl/certs /etc/ssl/private
-cp <ssl_pem> /etc/ssl/certs/kibana-access.pem
-cp <ssl_key> /etc/ssl/private/kibana-access.key
-mkdir -p /etc/ssl/certs /etc/ssl/private
-openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/kibana-access.key -out /etc/ssl/certs/kibana-access.pem
-cat > /etc/nginx/sites-available/default <<\EOF
-server {
-    listen 80;
-    listen [::]:80;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 default_server;
-    listen            [::]:443;
-    ssl on;
-    ssl_certificate /etc/ssl/certs/kibana-access.pem;
-    ssl_certificate_key /etc/ssl/private/kibana-access.key;
-    access_log            /var/log/nginx/nginx.access.log;
-    error_log            /var/log/nginx/nginx.error.log;
-    location / {
-        auth_basic "Restricted";
-        auth_basic_user_file /etc/nginx/conf.d/kibana.htpasswd;
-        proxy_pass http://localhost:5601/;
-    }
-}
+cat > /etc/yum.repos.d/wazuh.repo <<\EOF
+[wazuh_repo]
+gpgcheck=1
+gpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+enabled=1
+name=Wazuh repository
+baseurl=https://packages.wazuh.com/3.x/yum/
+protect=1
 EOF
-cp /etc/nginx/sites-available/default /tmp/
-wazuh_ip="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}'):5601"
-sed -i "s/localhost:5601/$wazuh_ip/" /etc/nginx/sites-available/default
 
-sudo yum install apache2-utils -y
-clear
-echo "You need to set a username and password to login."
-read -p "Please enter a username : " user
-htpasswd -c /etc/nginx/conf.d/kibana.htpasswd $user
-systemctl restart nginx
-cd /var/ossec/api/configuration/auth
-echo "You need to set a username and password for the Wazuh API."
-read -p "Please enter a username : " apiuser
-node htpasswd -c user $apiuser
-systemctl restart wazuh-api
-wazuh_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
-echo "All done! You can login under https://$wazuh_ip"
-read -p "Press [Enter] to exit." 
+yum update
+yum -y install wazuh-manager
+service wazuh-manager status
+curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
+yum install -y nodejs
+python --version
+netstat -tapn | grep LISTEN
+yum -y install wazuh-api
+service wazuh-api status
 
+curl https://raw.githubusercontent.com/wazuh/wazuh/3.2/extensions/elasticsearch/wazuh-elastic6-template-alerts.json | curl -XPUT 'http://localhost:9200/_template/wazuh' -H 'Content-Type: application/json' -d @-
+curl -so /etc/logstash/conf.d/01-wazuh.conf https://raw.githubusercontent.com/wazuh/wazuh/3.2/extensions/logstash/01-wazuh-local.conf
+chown logstash:logstash /etc/logstash/conf.d/01-wazuh.conf
+usermod -a -G ossec logstash
+systemctl daemon-reload
+export NODE_OPTIONS="--max-old-space-size=3072"
+/usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/wazuhapp/wazuhapp-3.10.2_7.4.0.zip
+sed -i "s/^enabled=1/enabled=0/" /etc/yum.repos.d/elasticsearch.repo
+node /var/ossec/api/configuration/auth/htpasswd -c /var/ossec/api/configuration/auth/user manager
+service wazuh-api restart
+echo "PASSWORD" /var/ossec/etc/authd.pass
+/var/ossec/bin/ossec-authd -i -P -a
+firewall-cmd --permanent --add-port=1515/tcp
+firewall-cmd --permanent --add-port=1514/udp
+firewall-cmd --reload
+service logstash start
+service kibana restart

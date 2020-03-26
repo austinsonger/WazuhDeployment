@@ -6,7 +6,7 @@
 echo "--------------------------------------------------------------------------"
 echo "$(date)"
 echo "Starting Wazuh Made Easy"
-echo "Wazuh for Debian-based Systems"
+echo "Wazuh for Red-Hat-based Systems"
 echo "Wazuh Manager - Wazuh API - Elasticsearch - Kibana"
 echo "-------------------------------------------------------------------------"
 

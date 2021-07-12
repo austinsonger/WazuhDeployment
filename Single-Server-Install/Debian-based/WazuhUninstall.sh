@@ -8,7 +8,7 @@
 # (Run Script with Sudo)
 ###########################
 
-# apt remove --purge wazuh-manager
+apt remove --purge wazuh-manager
 apt-get remove --purge filebeat
 apt-get remove --auto-remove opendistroforelasticsearch
 apt-get remove --purge opendistroforelasticsearch-kibana

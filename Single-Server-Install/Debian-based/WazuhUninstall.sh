@@ -13,23 +13,11 @@ apt-get remove --purge filebeat
 apt-get remove --auto-remove opendistroforelasticsearch
 apt-get remove --purge opendistroforelasticsearch-kibana
 apt autoremove
-cd
-cd ../../
-cd /var/lib
-sudo rm -R -f elasticsearch
-cd ../../
-cd etc
-sudo rm -R -f elasticsearch
-cd ../
-cd /var/lib
-sudo rm -R -f kibana
-cd ../../
-cd etc
-sudo rm -R -f kibana
-cd ../../
-cd /var/lib
-sudo rm -R -f filebeat
-cd ../../
-cd etc
-sudo rm -R -f filebeat
-cd
+cd ~
+sudo rm -rf /var/lib/elasticsearch
+sudo rm -rf /etc/elasticsearch
+sudo rm -rf /var/lib/kibana
+sudo rm -rf /etc/kibana
+sudo rm -rf /var/lib filebeat
+sudo rm -rf /etc/filebeat
+sudo rm -rf /usr/share/filebeat/
